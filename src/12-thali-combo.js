@@ -54,16 +54,98 @@
  */
 export function createThaliDescription(thali) {
   // Your code here
+  // Check object validity
+  if (typeof thali !== "object" || thali === null) return "";
+
+  const { name, items, price, isVeg } = thali;
+
+  // validate require field
+  if (
+    typeof name !== "string" ||
+    !Array.isArray(items) ||
+    typeof price !== "number" ||
+    typeof isVeg !== "boolean"
+  )
+    return "";
+
+  // Format values
+  const formattedName = name.toUpperCase();
+  const formattedItems = items.join(", ");
+  const formattedPrice = price.toFixed(2);
+  const vegLabel = isVeg ? "Veg" : "Non-Veg";
+
+  return `${formattedName} (${vegLabel}) - Items: ${formattedItems} - Rs.${formattedPrice}`;
 }
 
 export function getThaliStats(thalis) {
   // Your code here
+  if (!Array.isArray(thalis) || thalis.length === 0) return null;
+
+  const totalThalis = thalis.length;
+
+  const vegCount = thalis.filter((thali) => thali.isVeg).length;
+  const nonVegCount = thalis.filter((thali) => !thali.isVeg).length;
+
+  const totalPrice = thalis.reduce((sum, thali) => sum + thali.price, 0);
+  const avgPrice = (totalPrice / totalThalis).toFixed(2);
+
+  const prices = thalis.map((thali) => thali.price);
+  const cheapest = Math.min(...prices);
+  const costliest = Math.max(...prices);
+
+  const names = thalis.map((thali) => thali.name);
+
+  return {
+    totalThalis,
+    vegCount,
+    nonVegCount,
+    avgPrice,
+    cheapest,
+    costliest,
+    names,
+  };
 }
 
 export function searchThaliMenu(thalis, query) {
   // Your code here
+  if (!Array.isArray(thalis) || typeof query !== "string") return [];
+
+  const lowerQuery = query.toLowerCase();
+
+  return thalis.filter((thali) => {
+    const nameMatch = thali.name.toLowerCase().includes(lowerQuery);
+
+    const itemMatch = thali.items.some((item) =>
+      item.toLowerCase().includes(lowerQuery),
+    );
+
+    return nameMatch || itemMatch;
+  });
 }
 
 export function generateThaliReceipt(customerName, thalis) {
   // Your code here
+  if (
+    typeof customerName !== "string" ||
+    !Array.isArray(thalis) ||
+    thalis.length === 0
+  ) {
+    return "";
+  }
+
+  const lineItems = thalis
+    .map((thali) => `- ${thali.name} x Rs.${thali.price}`)
+    .join("\n");
+
+  const total = thalis.reduce((sum, thali) => sum + thali.price, 0);
+
+  const count = thalis.length;
+
+  return `THALI RECEIPT
+---
+Customer: ${customerName.toUpperCase()}
+${lineItems}
+---
+Total: Rs.${total}
+Items: ${count}`;
 }
